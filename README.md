@@ -27,6 +27,12 @@ Open UI in browser:
 start http://127.0.0.1:8000/ui
 ```
 
+Use UI flow:
+
+1. In **Add Document**, paste text (or upload `.txt`/`.md`) and click **Ingest Document**.
+2. In **Ask Agent**, enter your prompt and click **Run Query**.
+3. Read the friendly **Answer** and **Summary** panels; expand **Raw JSON** only when debugging.
+
 Health check:
 
 ```powershell
@@ -55,6 +61,7 @@ Tip:
 
 - `http://127.0.0.1:8000` returns service JSON metadata.
 - `http://127.0.0.1:8000/ui` is the interactive web UI.
+- UI sends data to `/ingest` and `/query` on the same server origin.
 
 ## 2) Project Structure
 

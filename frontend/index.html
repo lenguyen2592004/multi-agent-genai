@@ -6,56 +6,128 @@
     <title>Enterprise Agent OS Demo</title>
     <style>
       :root {
-        --bg: #f4f8ff;
+        --bg: #edf5ff;
         --panel: #ffffff;
-        --ink: #102037;
-        --accent: #0c6ea9;
-        --accent-soft: #d8f0ff;
+        --ink: #13263f;
+        --muted: #5e6d82;
+        --accent: #0b76b8;
+        --accent-2: #0f9fbf;
+        --soft: #d9efff;
+        --ok: #0b8c5f;
+        --bad: #b63b4b;
       }
       body {
         margin: 0;
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         color: var(--ink);
         background: radial-gradient(
-          circle at 10% 20%,
-          #e8f7ff,
-          #f4f8ff 45%,
-          #fef6ea 100%
+          circle at 10% 10%,
+          #d9edff 0%,
+          #edf5ff 48%,
+          #fff5e7 100%
         );
       }
       .container {
-        max-width: 920px;
-        margin: 30px auto;
+        max-width: 1080px;
+        margin: 24px auto;
         padding: 20px;
       }
       .panel {
         background: var(--panel);
         border-radius: 16px;
-        padding: 20px;
+        padding: 22px;
         box-shadow: 0 14px 38px rgba(16, 32, 55, 0.12);
       }
       h1 {
-        margin-top: 0;
+        margin: 0 0 8px;
         letter-spacing: 0.4px;
       }
+      .sub {
+        color: var(--muted);
+        margin: 0 0 18px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .card {
+        border: 1px solid #d8e4f2;
+        border-radius: 12px;
+        padding: 14px;
+        background: #fbfdff;
+      }
+      h3 {
+        margin: 0 0 10px;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        margin: 10px 0 6px;
+        color: #334861;
+      }
+      input,
       textarea {
         width: 100%;
-        min-height: 110px;
-        border: 1px solid #d6e2f0;
+        box-sizing: border-box;
+        border: 1px solid #cfdced;
         border-radius: 10px;
         padding: 10px;
-        resize: vertical;
         font-size: 14px;
       }
-      button {
+      textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+      .actions {
+        display: flex;
+        gap: 10px;
         margin-top: 12px;
+        flex-wrap: wrap;
+      }
+      button {
         border: none;
-        background: linear-gradient(135deg, #0c6ea9, #1a8ecc);
-        color: white;
+        color: #fff;
         padding: 10px 14px;
         border-radius: 10px;
         cursor: pointer;
         font-weight: 600;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      }
+      button.secondary {
+        background: linear-gradient(135deg, #456482, #5f7f9f);
+      }
+      .hint {
+        margin-top: 10px;
+        padding: 10px;
+        background: var(--soft);
+        border-radius: 10px;
+        font-size: 13px;
+      }
+      .status {
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 10px;
+        font-size: 13px;
+        background: #eef5ff;
+        border: 1px solid #d5e3f4;
+      }
+      .status.ok {
+        border-color: #bde8d6;
+        background: #ebfbf4;
+        color: var(--ok);
+      }
+      .status.bad {
+        border-color: #f0c2ca;
+        background: #fff1f4;
+        color: var(--bad);
+      }
+      .response {
+        margin-top: 14px;
+      }
+      .response h3,
+      .response h4 {
+        margin: 10px 0;
       }
       pre {
         background: #0f1724;
@@ -66,12 +138,21 @@
         white-space: pre-wrap;
         word-break: break-word;
       }
-      .hint {
-        margin-top: 8px;
-        padding: 10px;
-        background: var(--accent-soft);
+      .summary {
+        background: #f4f8ff;
+        border: 1px solid #d8e4f2;
         border-radius: 10px;
-        font-size: 13px;
+        padding: 10px;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      details {
+        margin-top: 12px;
+      }
+      @media (max-width: 900px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
@@ -79,58 +160,251 @@
     <div class="container">
       <div class="panel">
         <h1>Enterprise Agent OS</h1>
-        <p>
-          Send a query to the local FastAPI backend and inspect answer + trace.
+        <p class="sub">
+          Ingest your own document, then ask for summary and action items.
         </p>
 
-        <label for="query">Query</label>
-        <textarea id="query">
-Summarize this document and extract action items</textarea
-        >
-        <button id="run">Run Query</button>
-        <div class="hint" id="api-hint">Backend URL: /query</div>
+        <div class="grid">
+          <section class="card">
+            <h3>1) Add Document</h3>
 
-        <h3>Response</h3>
-        <pre id="result">No result yet.</pre>
+            <label for="user-id">User ID</label>
+            <input id="user-id" value="frontend-user" />
+
+            <label for="document-id">Document ID</label>
+            <input id="document-id" value="my-note-1" />
+
+            <label for="document-file">Upload .txt or .md (optional)</label>
+            <input
+              id="document-file"
+              type="file"
+              accept=".txt,.md,text/plain,text/markdown"
+            />
+
+            <label for="document-text">Document text</label>
+            <textarea
+              id="document-text"
+              placeholder="Paste your document content here..."
+            ></textarea>
+
+            <div class="actions">
+              <button id="ingest-btn" class="secondary">Ingest Document</button>
+            </div>
+
+            <div id="ingest-status" class="status">
+              No document ingested yet.
+            </div>
+          </section>
+
+          <section class="card">
+            <h3>2) Ask Agent</h3>
+
+            <label for="query">Query</label>
+            <textarea id="query">
+Summarize this document and extract action items</textarea
+            >
+
+            <label for="top-k">Top-K retrieved chunks</label>
+            <input id="top-k" type="number" min="1" max="10" value="4" />
+
+            <div class="actions">
+              <button id="run-btn">Run Query</button>
+            </div>
+
+            <div class="hint" id="api-hint">
+              Backend URLs: /ingest and /query
+            </div>
+          </section>
+        </div>
+
+        <section class="response">
+          <h3>Response</h3>
+          <div id="query-status" class="status">No query yet.</div>
+
+          <h4>Answer</h4>
+          <pre id="answer">No result yet.</pre>
+
+          <h4>Summary</h4>
+          <div id="summary" class="summary">No summary yet.</div>
+
+          <details>
+            <summary>Raw JSON (for debugging)</summary>
+            <pre id="raw-json">No JSON yet.</pre>
+          </details>
+        </section>
       </div>
     </div>
 
     <script>
-      const runBtn = document.getElementById("run");
-      const result = document.getElementById("result");
-      const query = document.getElementById("query");
+      const userIdInput = document.getElementById("user-id");
+      const docIdInput = document.getElementById("document-id");
+      const docFileInput = document.getElementById("document-file");
+      const docTextInput = document.getElementById("document-text");
+      const ingestBtn = document.getElementById("ingest-btn");
+      const ingestStatus = document.getElementById("ingest-status");
+
+      const queryInput = document.getElementById("query");
+      const topKInput = document.getElementById("top-k");
+      const runBtn = document.getElementById("run-btn");
       const apiHint = document.getElementById("api-hint");
 
-      const apiUrl = window.location.origin.startsWith("http")
-        ? `${window.location.origin}/query`
-        : "http://127.0.0.1:8000/query";
-      apiHint.textContent = `Backend URL: ${apiUrl}`;
+      const queryStatus = document.getElementById("query-status");
+      const answerEl = document.getElementById("answer");
+      const summaryEl = document.getElementById("summary");
+      const rawJsonEl = document.getElementById("raw-json");
 
-      runBtn.addEventListener("click", async () => {
-        result.textContent = "Running...";
+      const baseUrl = window.location.origin.startsWith("http")
+        ? window.location.origin
+        : "http://127.0.0.1:8000";
+      const ingestUrl = `${baseUrl}/ingest`;
+      const queryUrl = `${baseUrl}/query`;
+      apiHint.textContent = `Backend URLs: ${ingestUrl} and ${queryUrl}`;
+
+      docFileInput.addEventListener("change", async (event) => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) {
+          return;
+        }
+
         try {
-          const response = await fetch(apiUrl, {
+          const content = await file.text();
+          docTextInput.value = content;
+          if (!docIdInput.value.trim()) {
+            docIdInput.value = file.name
+              .replace(/\.[^/.]+$/, "")
+              .replace(/\s+/g, "-")
+              .toLowerCase();
+          }
+          setStatus(ingestStatus, `Loaded file: ${file.name}`, true);
+        } catch (error) {
+          setStatus(ingestStatus, `Could not read file: ${error}`, false);
+        }
+      });
+
+      ingestBtn.addEventListener("click", async () => {
+        const userId = userIdInput.value.trim() || "frontend-user";
+        const documentId = docIdInput.value.trim();
+        const text = docTextInput.value.trim();
+
+        if (!documentId) {
+          setStatus(ingestStatus, "Document ID is required.", false);
+          return;
+        }
+        if (!text) {
+          setStatus(
+            ingestStatus,
+            "Document text is empty. Paste text or upload a .txt/.md file.",
+            false,
+          );
+          return;
+        }
+
+        setStatus(ingestStatus, "Ingesting document...", true);
+
+        try {
+          const response = await fetch(ingestUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              user_id: "frontend-user",
-              query: query.value,
-              top_k: 4,
+              user_id: userId,
+              document_id: documentId,
+              text,
+              metadata: { source: "ui" },
             }),
           });
 
           if (!response.ok) {
-            const text = await response.text();
-            result.textContent = `HTTP ${response.status}: ${text}`;
+            const textBody = await response.text();
+            setStatus(
+              ingestStatus,
+              `HTTP ${response.status}: ${textBody}`,
+              false,
+            );
             return;
           }
 
           const body = await response.json();
-          result.textContent = JSON.stringify(body, null, 2);
+          const chunks =
+            body.details && body.details.chunks ? body.details.chunks : 0;
+          setStatus(
+            ingestStatus,
+            `Ingest success: ${chunks} chunks indexed for document '${documentId}'.`,
+            true,
+          );
         } catch (error) {
-          result.textContent = `Error: ${error}`;
+          setStatus(ingestStatus, `Ingest error: ${error}`, false);
         }
       });
+
+      runBtn.addEventListener("click", async () => {
+        const userId = userIdInput.value.trim() || "frontend-user";
+        const query = queryInput.value.trim();
+        const topK = Number.parseInt(topKInput.value, 10) || 4;
+
+        if (!query) {
+          setStatus(queryStatus, "Query is empty.", false);
+          return;
+        }
+
+        setStatus(queryStatus, "Running query...", true);
+
+        try {
+          const response = await fetch(queryUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_id: userId, query, top_k: topK }),
+          });
+
+          if (!response.ok) {
+            const textBody = await response.text();
+            setStatus(
+              queryStatus,
+              `HTTP ${response.status}: ${textBody}`,
+              false,
+            );
+            return;
+          }
+
+          const body = await response.json();
+          renderResult(body);
+        } catch (error) {
+          setStatus(queryStatus, `Query error: ${error}`, false);
+        }
+      });
+
+      function renderResult(body) {
+        const valid = Boolean(body.valid);
+        setStatus(
+          queryStatus,
+          `Done. Valid=${valid} | Reason=${body.reason || "OK"} | Latency=${body.latency_ms || 0} ms`,
+          valid,
+        );
+
+        answerEl.textContent = body.answer || "(empty answer)";
+
+        const traceAgents = Array.isArray(body.trace)
+          ? body.trace.map((step) => step.agent).join(" -> ")
+          : "none";
+        const planList =
+          Array.isArray(body.plan) && body.plan.length
+            ? body.plan.join(" | ")
+            : "none";
+
+        summaryEl.textContent = [
+          `Trace ID: ${body.trace_id || "n/a"}`,
+          `Plan: ${planList}`,
+          `Tools: ${(body.tools || []).join(", ") || "none"}`,
+          `Trace flow: ${traceAgents}`,
+        ].join("\n");
+
+        rawJsonEl.textContent = JSON.stringify(body, null, 2);
+      }
+
+      function setStatus(element, message, ok) {
+        element.textContent = message;
+        element.classList.remove("ok", "bad");
+        element.classList.add(ok ? "ok" : "bad");
+      }
     </script>
   </body>
 </html>
