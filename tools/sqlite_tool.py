@@ -16,11 +16,11 @@ class SQLiteQueryTool(BaseTool):
         if not query:
             return {"status": "error", "result": "SQL query is required"}
 
-        if not re.match(r"^\\s*select\\b", query, flags=re.IGNORECASE):
+        if not re.match(r"^\s*select\b", query, flags=re.IGNORECASE):
             return {"status": "error", "result": "Only SELECT queries are allowed"}
 
         forbidden = re.search(
-            r"\\b(drop|delete|update|insert|alter|pragma|attach|detach|create|replace)\\b",
+            r"\b(drop|delete|update|insert|alter|pragma|attach|detach|create|replace)\b",
             query,
             flags=re.IGNORECASE,
         )

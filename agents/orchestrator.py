@@ -34,7 +34,7 @@ class AgentOrchestrator:
 
         workflow.add_node("planner", self._planner_node)
         workflow.add_node("retrieval", self._retrieval_node)
-        workflow.add_node("tools", self._tools_node)
+        workflow.add_node("tool_execution", self._tools_node)
         workflow.add_node("synthesizer", self._synthesizer_node)
         workflow.add_node("critic", self._critic_node)
         workflow.add_node("repair", self._repair_node)
@@ -46,7 +46,7 @@ class AgentOrchestrator:
             self._route_after_planner,
             {
                 "retrieval": "retrieval",
-                "tools": "tools",
+                "tool_execution": "tool_execution",
                 "synthesizer": "synthesizer",
             },
         )
@@ -55,12 +55,12 @@ class AgentOrchestrator:
             "retrieval",
             self._route_after_retrieval,
             {
-                "tools": "tools",
+                "tool_execution": "tool_execution",
                 "synthesizer": "synthesizer",
             },
         )
 
-        workflow.add_edge("tools", "synthesizer")
+        workflow.add_edge("tool_execution", "synthesizer")
         workflow.add_edge("synthesizer", "critic")
         workflow.add_conditional_edges(
             "critic",
@@ -206,12 +206,12 @@ class AgentOrchestrator:
         if state.get("needs_retrieval", False):
             return "retrieval"
         if state.get("needs_tools", False):
-            return "tools"
+            return "tool_execution"
         return "synthesizer"
 
     def _route_after_retrieval(self, state: AgentState) -> str:
         if state.get("needs_tools", False):
-            return "tools"
+            return "tool_execution"
         return "synthesizer"
 
     def _route_after_critic(self, state: AgentState) -> str:

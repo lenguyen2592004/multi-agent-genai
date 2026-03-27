@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enterprise Agent OS Demo</title>
+    <style>
+      :root {
+        --bg: #f4f8ff;
+        --panel: #ffffff;
+        --ink: #102037;
+        --accent: #0c6ea9;
+        --accent-soft: #d8f0ff;
+      }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--ink);
+        background: radial-gradient(
+          circle at 10% 20%,
+          #e8f7ff,
+          #f4f8ff 45%,
+          #fef6ea 100%
+        );
+      }
+      .container {
+        max-width: 920px;
+        margin: 30px auto;
+        padding: 20px;
+      }
+      .panel {
+        background: var(--panel);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 14px 38px rgba(16, 32, 55, 0.12);
+      }
+      h1 {
+        margin-top: 0;
+        letter-spacing: 0.4px;
+      }
+      textarea {
+        width: 100%;
+        min-height: 110px;
+        border: 1px solid #d6e2f0;
+        border-radius: 10px;
+        padding: 10px;
+        resize: vertical;
+        font-size: 14px;
+      }
+      button {
+        margin-top: 12px;
+        border: none;
+        background: linear-gradient(135deg, #0c6ea9, #1a8ecc);
+        color: white;
+        padding: 10px 14px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      pre {
+        background: #0f1724;
+        color: #d8e8ff;
+        padding: 12px;
+        border-radius: 10px;
+        overflow: auto;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .hint {
+        margin-top: 8px;
+        padding: 10px;
+        background: var(--accent-soft);
+        border-radius: 10px;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="panel">
+        <h1>Enterprise Agent OS</h1>
+        <p>
+          Send a query to the local FastAPI backend and inspect answer + trace.
+        </p>
+
+        <label for="query">Query</label>
+        <textarea id="query">
+Summarize this document and extract action items</textarea
+        >
+        <button id="run">Run Query</button>
+        <div class="hint">Backend URL: http://127.0.0.1:8000/query</div>
+
+        <h3>Response</h3>
+        <pre id="result">No result yet.</pre>
+      </div>
+    </div>
+
+    <script>
+      const runBtn = document.getElementById("run");
+      const result = document.getElementById("result");
+      const query = document.getElementById("query");
+
+      runBtn.addEventListener("click", async () => {
+        result.textContent = "Running...";
+        try {
+          const response = await fetch("http://127.0.0.1:8000/query", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              user_id: "frontend-user",
+              query: query.value,
+              top_k: 4,
+            }),
+          });
+          const body = await response.json();
+          result.textContent = JSON.stringify(body, null, 2);
+        } catch (error) {
+          result.textContent = `Error: ${error}`;
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -28,6 +28,23 @@ async def health() -> Dict[str, str]:
     return {"status": "ok"}
 
 
+@app.get("/")
+async def root() -> Dict[str, str]:
+    return {
+        "service": "Local-First Multi-Agent GenAI Platform",
+        "status": "ok",
+        "docs": "/docs",
+        "query_endpoint": "/query",
+        "query_endpoint_compat": "/api/query",
+    }
+
+
+@app.get("/api/health", response_model=Dict[str, str])
+async def api_health() -> Dict[str, str]:
+    return {"status": "ok"}
+
+
+@app.post("/api/query", response_model=QueryResponse)
 @app.post("/query", response_model=QueryResponse)
 async def query_endpoint(
     payload: QueryRequest,
@@ -66,6 +83,7 @@ async def query_endpoint(
     )
 
 
+@app.post("/api/ingest", response_model=BasicResponse)
 @app.post("/ingest", response_model=BasicResponse)
 async def ingest_endpoint(
     payload: IngestRequest,
@@ -88,6 +106,7 @@ async def ingest_endpoint(
     )
 
 
+@app.get("/api/metrics", response_model=Dict[str, float])
 @app.get("/metrics", response_model=Dict[str, float])
 async def metrics_endpoint() -> Dict[str, float]:
     services = get_runtime_services()

@@ -1,0 +1,3 @@
+{"question":"Summarize this document and extract action items","expected":"action item","type":"rag"}
+{"question":"Run SQL: SELECT name, owner, status FROM tasks LIMIT 2;","expected":"tasks","type":"tool","expected_tool":"sqlite_query"}
+{"question":"Search web for Python language summary","expected":"python","type":"tool","expected_tool":"web_search"}

@@ -1,0 +1,6 @@
+Quarterly Operations Policy
+
+All teams should submit a status update every Friday before 17:00.
+The security review for payment services must be completed before release.
+Each action item should have one owner and one due date.
+Follow-up actions should be reviewed in the next weekly planning meeting.
