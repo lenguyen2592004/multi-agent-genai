@@ -11,14 +11,16 @@ class MetricsStore:
         self._tool_calls = 0
         self._tool_success = 0
         self._token_usage = 0
+        self._user_counts: Dict[str, int] = {}
 
-    def record_request(self, latency_ms: int, success: bool, token_estimate: int = 0) -> None:
+    def record_request(self, user_id: str, latency_ms: int, success: bool, token_estimate: int = 0) -> None:
         with self._lock:
             self._total_requests += 1
             if success:
                 self._successful_requests += 1
             self._latencies_ms.append(max(0, latency_ms))
             self._token_usage += max(0, token_estimate)
+            self._user_counts[user_id] = self._user_counts.get(user_id, 0) + 1
 
     def record_tool_usage(self, tool_results: List[Dict[str, Any]]) -> None:
         with self._lock:
@@ -27,7 +29,7 @@ class MetricsStore:
                 if item.get("status") == "success":
                     self._tool_success += 1
 
-    def snapshot(self) -> Dict[str, float]:
+    def snapshot(self) -> Dict[str, Any]:
         with self._lock:
             avg_latency = (
                 float(sum(self._latencies_ms)) / float(len(self._latencies_ms))
@@ -51,4 +53,6 @@ class MetricsStore:
                 "avg_latency_ms": avg_latency,
                 "tool_accuracy": tool_accuracy,
                 "simulated_token_usage": float(self._token_usage),
+                "active_users_count": len(self._user_counts),
+                "user_distribution": dict(self._user_counts)
             }

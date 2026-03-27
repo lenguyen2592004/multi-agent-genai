@@ -174,21 +174,31 @@
             <label for="document-id">Document ID</label>
             <input id="document-id" value="my-note-1" />
 
-            <label for="document-file">Upload .txt or .md (optional)</label>
+            <label for="document-file"
+              >Upload .txt or .md (Text/Markdown)</label
+            >
             <input
               id="document-file"
               type="file"
               accept=".txt,.md,text/plain,text/markdown"
             />
 
+            <label for="document-pdf">Upload .pdf (PDF Document)</label>
+            <input
+              id="document-pdf"
+              type="file"
+              accept=".pdf,application/pdf"
+            />
+
             <label for="document-text">Document text</label>
             <textarea
               id="document-text"
-              placeholder="Paste your document content here..."
+              placeholder="Paste your document content here or use the file inputs..."
             ></textarea>
 
             <div class="actions">
-              <button id="ingest-btn" class="secondary">Ingest Document</button>
+              <button id="ingest-btn" class="secondary">Ingest Text/MD</button>
+              <button id="ingest-pdf-btn" class="secondary">Ingest PDF</button>
             </div>
 
             <div id="ingest-status" class="status">
@@ -239,8 +249,10 @@ Summarize this document and extract action items</textarea
       const userIdInput = document.getElementById("user-id");
       const docIdInput = document.getElementById("document-id");
       const docFileInput = document.getElementById("document-file");
+      const docPdfInput = document.getElementById("document-pdf");
       const docTextInput = document.getElementById("document-text");
       const ingestBtn = document.getElementById("ingest-btn");
+      const ingestPdfBtn = document.getElementById("ingest-pdf-btn");
       const ingestStatus = document.getElementById("ingest-status");
 
       const queryInput = document.getElementById("query");
@@ -257,8 +269,9 @@ Summarize this document and extract action items</textarea
         ? window.location.origin
         : "http://127.0.0.1:8000";
       const ingestUrl = `${baseUrl}/ingest`;
+      const ingestPdfUrl = `${baseUrl}/ingest-pdf`;
       const queryUrl = `${baseUrl}/query`;
-      apiHint.textContent = `Backend URLs: ${ingestUrl} and ${queryUrl}`;
+      apiHint.textContent = `Backend URLs: ${ingestUrl}, ${ingestPdfUrl} and ${queryUrl}`;
 
       docFileInput.addEventListener("change", async (event) => {
         const file = event.target.files && event.target.files[0];
@@ -333,6 +346,76 @@ Summarize this document and extract action items</textarea
           );
         } catch (error) {
           setStatus(ingestStatus, `Ingest error: ${error}`, false);
+        }
+      });
+
+      ingestPdfBtn.addEventListener("click", async () => {
+        const userId = userIdInput.value.trim() || "frontend-user";
+        const documentId = docIdInput.value.trim();
+        const file = docPdfInput.files[0];
+
+        if (!documentId) {
+          setStatus(
+            ingestStatus,
+            "Document ID (từ ô Document ID) là bắt buộc.",
+            false,
+          );
+          return;
+        }
+
+        if (!file) {
+          setStatus(ingestStatus, "Chưa chọn file PDF.", false);
+          return;
+        }
+
+        setStatus(ingestStatus, "Đang tải lên PDF...", true);
+
+        const formData = new FormData();
+        const finalUrl = `${ingestPdfUrl}?user_id=${encodeURIComponent(userId)}&document_id=${encodeURIComponent(documentId)}`;
+
+        formData.append("file", file);
+
+        try {
+          console.log("DEBUG: Sending PDF request", {
+            userId,
+            documentId,
+            fileName: file.name,
+          });
+          const response = await fetch(finalUrl, {
+            method: "POST",
+            body: formData,
+          });
+
+          console.log("DEBUG: Response status", response.status);
+
+          if (!response.ok) {
+            const textBody = await response.text();
+            console.error("DEBUG: Response error body", textBody);
+            setStatus(
+              ingestStatus,
+              `Lỗi HTTP ${response.status}: ${textBody}`,
+              false,
+            );
+            return;
+          }
+
+          const body = await response.json();
+          console.log("DEBUG: Response JSON", body);
+          const chunks =
+            body.details && body.details.chunks ? body.details.chunks : 0;
+
+          if (body.status === "error") {
+            setStatus(ingestStatus, `Lỗi Server: ${body.message}`, false);
+          } else {
+            setStatus(
+              ingestStatus,
+              `PDF Ingest thành công: ${chunks} chunks đã được index cho '${documentId}'.`,
+              true,
+            );
+          }
+        } catch (error) {
+          console.error("DEBUG: Fetch effort failed", error);
+          setStatus(ingestStatus, `Lỗi Ingest PDF: ${error}`, false);
         }
       });
 
