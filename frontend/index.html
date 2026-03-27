@@ -88,7 +88,7 @@
 Summarize this document and extract action items</textarea
         >
         <button id="run">Run Query</button>
-        <div class="hint">Backend URL: http://127.0.0.1:8000/query</div>
+        <div class="hint" id="api-hint">Backend URL: /query</div>
 
         <h3>Response</h3>
         <pre id="result">No result yet.</pre>
@@ -99,11 +99,17 @@ Summarize this document and extract action items</textarea
       const runBtn = document.getElementById("run");
       const result = document.getElementById("result");
       const query = document.getElementById("query");
+      const apiHint = document.getElementById("api-hint");
+
+      const apiUrl = window.location.origin.startsWith("http")
+        ? `${window.location.origin}/query`
+        : "http://127.0.0.1:8000/query";
+      apiHint.textContent = `Backend URL: ${apiUrl}`;
 
       runBtn.addEventListener("click", async () => {
         result.textContent = "Running...";
         try {
-          const response = await fetch("http://127.0.0.1:8000/query", {
+          const response = await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -112,6 +118,13 @@ Summarize this document and extract action items</textarea
               top_k: 4,
             }),
           });
+
+          if (!response.ok) {
+            const text = await response.text();
+            result.textContent = `HTTP ${response.status}: ${text}`;
+            return;
+          }
+
           const body = await response.json();
           result.textContent = JSON.stringify(body, null, 2);
         } catch (error) {

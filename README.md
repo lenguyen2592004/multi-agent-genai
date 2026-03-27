@@ -21,6 +21,12 @@ python data/init_db.py
 python -m uvicorn api.main:app --reload --port 8000
 ```
 
+Open UI in browser:
+
+```powershell
+start http://127.0.0.1:8000/ui
+```
+
 Health check:
 
 ```powershell
@@ -44,6 +50,11 @@ Compatibility query route also works:
 ```powershell
 Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/query" -Method Post -ContentType "application/json" -Body '{"user_id":"123","query":"Summarize this document and extract action items","top_k":4}'
 ```
+
+Tip:
+
+- `http://127.0.0.1:8000` returns service JSON metadata.
+- `http://127.0.0.1:8000/ui` is the interactive web UI.
 
 ## 2) Project Structure
 

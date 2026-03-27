@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Dict
 
 from fastapi import Depends, FastAPI
+from fastapi.responses import FileResponse
 
 from api.deps import InMemoryRateLimiter, parse_rate_limit_from_env, require_optional_bearer
 from api.runtime import get_runtime_services
@@ -11,6 +12,7 @@ from observability.logging_config import configure_logging
 
 
 BASE_DIR = Path(__file__).resolve().parents[1]
+FRONTEND_INDEX = BASE_DIR / "frontend" / "index.html"
 configure_logging(BASE_DIR / "logs" / "app.log")
 
 app = FastAPI(title="Local-First Multi-Agent GenAI Platform", version="0.1.0")
@@ -34,9 +36,16 @@ async def root() -> Dict[str, str]:
         "service": "Local-First Multi-Agent GenAI Platform",
         "status": "ok",
         "docs": "/docs",
+        "ui": "/ui",
         "query_endpoint": "/query",
         "query_endpoint_compat": "/api/query",
     }
+
+
+@app.get("/ui")
+@app.get("/ui/")
+async def ui_page() -> FileResponse:
+    return FileResponse(FRONTEND_INDEX)
 
 
 @app.get("/api/health", response_model=Dict[str, str])
