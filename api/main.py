@@ -1,6 +1,6 @@
 import time
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List, Optional, Any
 
 from fastapi import Depends, FastAPI, File, UploadFile
 from fastapi.responses import FileResponse
@@ -9,7 +9,7 @@ import io
 
 from api.deps import InMemoryRateLimiter, parse_rate_limit_from_env, require_optional_bearer
 from api.runtime import get_runtime_services
-from api.schemas import BasicResponse, IngestRequest, QueryRequest, QueryResponse, TraceStepModel
+from api.schemas import BasicResponse, IngestRequest, QueryRequest, QueryResponse, TraceStepModel, DocumentListResponse
 from observability.logging_config import configure_logging
 
 
@@ -123,6 +123,35 @@ async def ingest_endpoint(
         status="success",
         message="Document ingested",
         details={"chunks": chunks},
+    )
+
+
+@app.get("/api/documents", response_model=DocumentListResponse)
+@app.get("/documents", response_model=DocumentListResponse)
+async def list_documents_endpoint(
+    user_id: Optional[str] = None,
+) -> DocumentListResponse:
+    services = get_runtime_services()
+    documents = services.rag_pipeline.list_user_documents(user_id=user_id)
+    return DocumentListResponse(
+        user_id=user_id,
+        documents=documents,
+        total=len(documents),
+    )
+
+
+@app.delete("/api/documents/{document_id}", response_model=BasicResponse)
+@app.delete("/documents/{document_id}", response_model=BasicResponse)
+async def delete_document_endpoint(
+    document_id: str,
+    user_id: Optional[str] = None,
+) -> BasicResponse:
+    services = get_runtime_services()
+    removed = services.rag_pipeline.vector_store.delete_by_document_id(document_id)
+    return BasicResponse(
+        status="success",
+        message=f"Deleted {removed} chunks for document '{document_id}'",
+        details={"removed_chunks": removed},
     )
 
 

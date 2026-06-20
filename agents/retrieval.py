@@ -12,6 +12,14 @@ class RetrievalAgent:
         query: str,
         top_k: int = 4,
         document_id: Optional[str] = None,
+        user_id: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
-        metadata_filters = {"document_id": document_id} if document_id else None
-        return self.rag_pipeline.search(query=query, top_k=top_k, metadata_filters=metadata_filters)
+        metadata_filters: Dict[str, Any] = {}
+        if document_id:
+            metadata_filters["document_id"] = document_id
+        return self.rag_pipeline.search(
+            query=query,
+            top_k=top_k,
+            metadata_filters=metadata_filters,
+            user_id=user_id,
+        )

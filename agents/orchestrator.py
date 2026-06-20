@@ -106,6 +106,7 @@ class AgentOrchestrator:
             state["query"],
             top_k=int(state.get("top_k", 4)),
             document_id=state.get("document_id"),
+            user_id=state.get("user_id"),
         )
         latency = int((time.perf_counter() - start) * 1000)
         trace = self._append_trace(
@@ -119,7 +120,12 @@ class AgentOrchestrator:
     def _tools_node(self, state: AgentState) -> Dict[str, Any]:
         start = time.perf_counter()
         tools = list(state.get("tools", []))
-        results = self.tool_executor.execute(tools=tools, query=state["query"])
+        results = self.tool_executor.execute(
+            tools=tools,
+            query=state["query"],
+            user_id=state.get("user_id"),
+            document_id=state.get("document_id"),
+        )
         latency = int((time.perf_counter() - start) * 1000)
         trace = self._append_trace(
             state,
@@ -189,12 +195,18 @@ class AgentOrchestrator:
                 state["query"],
                 top_k=max(5, int(state.get("top_k", 4))),
                 document_id=state.get("document_id"),
+                user_id=state.get("user_id"),
             )
 
         tools = list(state.get("tools", []))
         tool_results = list(state.get("tool_results", []))
         if tools and not tool_results:
-            tool_results = self.tool_executor.execute(tools=tools, query=state["query"])
+            tool_results = self.tool_executor.execute(
+                tools=tools,
+                query=state["query"],
+                user_id=state.get("user_id"),
+                document_id=state.get("document_id"),
+            )
 
         latency = int((time.perf_counter() - start) * 1000)
         trace = self._append_trace(

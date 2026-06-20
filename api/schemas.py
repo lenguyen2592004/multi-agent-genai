@@ -39,3 +39,9 @@ class BasicResponse(BaseModel):
     status: str
     message: str
     details: Optional[Dict[str, Any]] = None
+
+
+class DocumentListResponse(BaseModel):
+    user_id: Optional[str] = None
+    documents: List[Dict[str, Any]]
+    total: int

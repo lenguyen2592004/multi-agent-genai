@@ -1,5 +1,5 @@
 import re
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from tools.registry import ToolRegistry
 
@@ -8,7 +8,13 @@ class ToolExecutionAgent:
     def __init__(self, tool_registry: ToolRegistry) -> None:
         self.tool_registry = tool_registry
 
-    def execute(self, tools: List[str], query: str) -> List[Dict[str, Any]]:
+    def execute(
+        self,
+        tools: List[str],
+        query: str,
+        user_id: Optional[str] = None,
+        document_id: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
         tool_results: List[Dict[str, Any]] = []
 
         for tool_name in dict.fromkeys(tools):
@@ -19,6 +25,11 @@ class ToolExecutionAgent:
             elif tool_name == "python_executor":
                 code = self._extract_python(query)
                 tool_input = {"code": code}
+            elif tool_name == "document_search":
+                if document_id:
+                    tool_input["document_id"] = document_id
+                if user_id:
+                    tool_input["user_id"] = user_id
 
             result = self.tool_registry.execute(tool_name, tool_input)
             result["tool"] = tool_name

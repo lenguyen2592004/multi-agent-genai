@@ -12,9 +12,17 @@ class DocumentSearchTool(BaseTool):
         query = str(tool_input.get("query", "")).strip()
         top_k = int(tool_input.get("top_k", 4))
         document_id = str(tool_input.get("document_id", "")).strip() or None
+        user_id = str(tool_input.get("user_id", "")).strip() or None
         if not query:
             return {"status": "error", "result": "query is required"}
 
-        metadata_filters = {"document_id": document_id} if document_id else None
-        docs = self.rag_pipeline.search(query=query, top_k=top_k, metadata_filters=metadata_filters)
+        metadata_filters: Dict[str, Any] = {}
+        if document_id:
+            metadata_filters["document_id"] = document_id
+        docs = self.rag_pipeline.search(
+            query=query,
+            top_k=top_k,
+            metadata_filters=metadata_filters if metadata_filters else None,
+            user_id=user_id,
+        )
         return {"status": "success", "result": docs}
