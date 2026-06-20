@@ -1,0 +1,35 @@
+# Multi-stage build for Cloud Run
+FROM python:3.13-slim as builder
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+# Production stage
+FROM python:3.13-slim
+
+WORKDIR /app
+
+# Create data directory for SQLite and vector store
+RUN mkdir -p /app/data /app/logs
+
+# Copy only necessary files
+COPY --from=builder /root/.local /root/.local
+COPY . .
+
+# Make sure scripts in .local are usable
+ENV PATH=/root/.local/bin:$PATH
+
+# Cloud Run sets PORT environment variable
+ENV PORT=8080
+EXPOSE 8080
+
+# Use uvicorn with optimized settings for Cloud Run
+CMD exec uvicorn api.main:app --host 0.0.0.0 --port ${PORT} --workers 1
