@@ -65,11 +65,19 @@ async def query_endpoint(
     services = get_runtime_services()
 
     start = time.perf_counter()
-    result = services.orchestrator.run(
-        user_id=payload.user_id,
-        query=payload.query,
-        top_k=payload.top_k,
-    )
+    if payload.document_id:
+        result = services.orchestrator.run_for_document(
+            user_id=payload.user_id,
+            query=payload.query,
+            document_id=payload.document_id,
+            top_k=payload.top_k,
+        )
+    else:
+        result = services.orchestrator.run(
+            user_id=payload.user_id,
+            query=payload.query,
+            top_k=payload.top_k,
+        )
     latency_ms = int((time.perf_counter() - start) * 1000)
 
     services.metrics.record_request(

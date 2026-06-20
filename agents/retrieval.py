@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from rag.pipeline import RAGPipeline
 
@@ -7,5 +7,11 @@ class RetrievalAgent:
     def __init__(self, rag_pipeline: RAGPipeline) -> None:
         self.rag_pipeline = rag_pipeline
 
-    def retrieve(self, query: str, top_k: int = 4) -> List[Dict[str, Any]]:
-        return self.rag_pipeline.search(query=query, top_k=top_k)
+    def retrieve(
+        self,
+        query: str,
+        top_k: int = 4,
+        document_id: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        metadata_filters = {"document_id": document_id} if document_id else None
+        return self.rag_pipeline.search(query=query, top_k=top_k, metadata_filters=metadata_filters)

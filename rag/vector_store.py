@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from rag.embeddings import cosine_similarity
 
@@ -38,16 +38,33 @@ class LocalVectorStore:
     def count(self) -> int:
         return len(self._rows)
 
-    def similarity_search(self, query_embedding: List[float], top_k: int = 4) -> List[Dict[str, Any]]:
+    def similarity_search(
+        self,
+        query_embedding: List[float],
+        top_k: int = 4,
+        metadata_filters: Optional[Dict[str, Any]] = None,
+    ) -> List[Dict[str, Any]]:
         scored: List[Dict[str, Any]] = []
         for row in self._rows:
+            metadata = row.get("metadata", {})
+            if metadata_filters:
+                should_skip = False
+                for key, expected_value in metadata_filters.items():
+                    if expected_value is None:
+                        continue
+                    if metadata.get(key) != expected_value:
+                        should_skip = True
+                        break
+                if should_skip:
+                    continue
+
             embedding = row.get("embedding", [])
             score = cosine_similarity(query_embedding, embedding)
             scored.append(
                 {
                     "id": row.get("id", ""),
                     "text": row.get("text", ""),
-                    "metadata": row.get("metadata", {}),
+                    "metadata": metadata,
                     "score": score,
                 }
             )

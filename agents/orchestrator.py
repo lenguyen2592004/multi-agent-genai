@@ -102,7 +102,11 @@ class AgentOrchestrator:
 
     def _retrieval_node(self, state: AgentState) -> Dict[str, Any]:
         start = time.perf_counter()
-        docs = self.retrieval.retrieve(state["query"], top_k=int(state.get("top_k", 4)))
+        docs = self.retrieval.retrieve(
+            state["query"],
+            top_k=int(state.get("top_k", 4)),
+            document_id=state.get("document_id"),
+        )
         latency = int((time.perf_counter() - start) * 1000)
         trace = self._append_trace(
             state,
@@ -181,7 +185,11 @@ class AgentOrchestrator:
 
         docs = list(state.get("retrieved_docs", []))
         if not docs:
-            docs = self.retrieval.retrieve(state["query"], top_k=max(5, int(state.get("top_k", 4))))
+            docs = self.retrieval.retrieve(
+                state["query"],
+                top_k=max(5, int(state.get("top_k", 4))),
+                document_id=state.get("document_id"),
+            )
 
         tools = list(state.get("tools", []))
         tool_results = list(state.get("tool_results", []))
@@ -224,6 +232,43 @@ class AgentOrchestrator:
 
         initial_state: AgentState = {
             "user_id": user_id,
+            "query": query,
+            "top_k": top_k,
+            "trace_id": trace_id,
+            "retry_count": 0,
+            "trace": [],
+            "plan": [],
+            "tools": [],
+            "retrieved_docs": [],
+            "tool_results": [],
+        }
+
+        result: AgentState = self.graph.invoke(initial_state)
+        feedback = result.get("critic_feedback", {"valid": False, "reason": "No critic feedback"})
+
+        return {
+            "trace_id": trace_id,
+            "answer": result.get("final_answer", result.get("draft_answer", "")),
+            "valid": bool(feedback.get("valid", False)),
+            "reason": str(feedback.get("reason", "")),
+            "plan": list(result.get("plan", [])),
+            "tools": list(result.get("tools", [])),
+            "tool_results": list(result.get("tool_results", [])),
+            "trace": list(result.get("trace", [])),
+        }
+
+    def run_for_document(
+        self,
+        user_id: str,
+        query: str,
+        document_id: str,
+        top_k: int = 4,
+    ) -> Dict[str, Any]:
+        trace_id = str(uuid.uuid4())
+
+        initial_state: AgentState = {
+            "user_id": user_id,
+            "document_id": document_id,
             "query": query,
             "top_k": top_k,
             "trace_id": trace_id,

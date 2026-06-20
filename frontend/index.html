@@ -435,7 +435,12 @@ Summarize this document and extract action items</textarea
           const response = await fetch(queryUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_id: userId, query, top_k: topK }),
+            body: JSON.stringify({
+              user_id: userId,
+              document_id: docIdInput.value.trim() || undefined,
+              query,
+              top_k: topK,
+            }),
           });
 
           if (!response.ok) {

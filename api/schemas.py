@@ -7,6 +7,7 @@ class QueryRequest(BaseModel):
     user_id: str = Field(..., min_length=1, max_length=128)
     query: str = Field(..., min_length=3, max_length=4000)
     top_k: int = Field(default=4, ge=1, le=10)
+    document_id: Optional[str] = Field(default=None, min_length=1, max_length=256)
 
 
 class IngestRequest(BaseModel):

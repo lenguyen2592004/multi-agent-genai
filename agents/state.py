@@ -9,6 +9,7 @@ class TraceStep(TypedDict):
 
 class AgentState(TypedDict, total=False):
     user_id: str
+    document_id: str
     query: str
     top_k: int
     trace_id: str

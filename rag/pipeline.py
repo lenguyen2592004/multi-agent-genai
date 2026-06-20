@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from rag.chunker import chunk_text
 from rag.embeddings import embed_text
@@ -57,6 +57,15 @@ class RAGPipeline:
             )
         return count
 
-    def search(self, query: str, top_k: int = 4) -> List[Dict[str, Any]]:
+    def search(
+        self,
+        query: str,
+        top_k: int = 4,
+        metadata_filters: Optional[Dict[str, Any]] = None,
+    ) -> List[Dict[str, Any]]:
         query_embedding = embed_text(query)
-        return self.vector_store.similarity_search(query_embedding=query_embedding, top_k=top_k)
+        return self.vector_store.similarity_search(
+            query_embedding=query_embedding,
+            top_k=top_k,
+            metadata_filters=metadata_filters,
+        )
