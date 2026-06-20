@@ -4,7 +4,7 @@ from pathlib import Path
 
 from agents.orchestrator import AgentOrchestrator
 from data.init_db import initialize_sqlite
-from llm.ollama_client import OllamaClient
+from llm.llm_client import LLMClient
 from observability.metrics import MetricsStore
 from rag.pipeline import RAGPipeline
 from tools.registry import ToolRegistry
@@ -36,7 +36,7 @@ def get_runtime_services() -> RuntimeServices:
         rag_pipeline.ingest_directory(docs_dir)
 
     tool_registry = ToolRegistry(rag_pipeline=rag_pipeline, db_path=db_path)
-    llm_client = OllamaClient()
+    llm_client = LLMClient()
     orchestrator = AgentOrchestrator(
         llm_client=llm_client,
         rag_pipeline=rag_pipeline,

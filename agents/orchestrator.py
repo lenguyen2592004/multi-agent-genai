@@ -10,7 +10,7 @@ from agents.retrieval import RetrievalAgent
 from agents.state import AgentState, TraceStep
 from agents.synthesizer import SynthesizerAgent
 from agents.tool_executor import ToolExecutionAgent
-from llm.ollama_client import OllamaClient
+from llm.llm_client import LLMClient
 from rag.pipeline import RAGPipeline
 from tools.registry import ToolRegistry
 
@@ -18,7 +18,7 @@ from tools.registry import ToolRegistry
 class AgentOrchestrator:
     def __init__(
         self,
-        llm_client: OllamaClient,
+        llm_client: LLMClient,
         rag_pipeline: RAGPipeline,
         tool_registry: ToolRegistry,
     ) -> None:

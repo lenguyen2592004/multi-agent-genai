@@ -1,0 +1,81 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{parskip}
+
+\geometry{a4paper, margin=0.75in}
+\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue}
+\titleformat{\section}{\large\bfseries\color{blue!70!black}}{\thesection}{1em}{}[\titlerule]
+
+\begin{document}
+
+\begin{center}
+    {\LARGE\bfseries Multi-Agent GenAI Platform}\\[0.3em]
+    {\large Cloud-Native AI System with RAG, LangGraph, and FastAPI}\\[0.5em]
+    \href{https://your-live-url.a.run.app}{\texttt{Live Demo}} \textbar{} 
+    \href{https://github.com/yourusername/multi-agent-genai}{GitHub Repository}
+\end{center}
+
+\section{Project Overview}
+Production-style multi-agent AI system designed as a portfolio project to demonstrate cloud-native deployment, agent orchestration, and Retrieval-Augmented Generation (RAG). The platform exposes a FastAPI gateway serving both REST endpoints and an interactive web UI.
+
+\section{Key Features}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{FastAPI Gateway}: RESTful API with OpenAPI docs, rate limiting, and Bearer token auth
+    \item \textbf{LangGraph Orchestration}: Multi-agent workflow with Planner, Retrieval, Tool Executor, Synthesizer, Critic, and Repair nodes
+    \item \textbf{RAG Pipeline}: Document ingestion, chunking, embedding, and cosine-similarity search
+    \item \textbf{Tool Execution Framework}: Document search, SQLite query, Python execution, and web search
+    \item \textbf{Critic Agent}: Output validation with one automatic retry loop
+    \item \textbf{Observability}: Structured JSON logging, in-memory metrics, and request tracing
+\end{itemize}
+
+\section{Technical Stack}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Backend}: Python 3.13, FastAPI, Uvicorn, Pydantic
+    \item \textbf{AI/ML}: LangGraph, Groq API (Llama 3.1), OpenAI-compatible LLM client
+    \item \textbf{Data}: SQLite, JSON vector store (MVP), pypdf for PDF parsing
+    \item \textbf{Cloud}: Google Cloud Run, Container Registry, IAM Service Accounts
+    \item \textbf{DevOps}: Docker, Cloud Build, GitHub Actions-ready CI/CD
+    \item \textbf{Frontend}: Vanilla HTML/JS (single-file, no build step)
+\end{itemize}
+
+\section{Cloud Deployment}
+\begin{itemize}[leftmargin=*]
+    \item Deployed on \textbf{Google Cloud Run} with containerized FastAPI app
+    \item Achieved \textbf{\$0 monthly infrastructure cost} by leveraging Cloud Run free tier (2M requests/month)
+    \item Implemented multi-provider LLM client supporting Groq, Gemini, OpenAI, and local Ollama
+    \item Externalized all secrets and configuration to \texttt{.env} and GCP environment variables
+    \item Managed IAM permissions via service account keys with least-privilege roles
+\end{itemize}
+
+\section{Architecture Highlights}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{StateGraph Workflow}: Planner $\rightarrow$ Retrieval $\rightarrow$ Tools $\rightarrow$ Synthesizer $\rightarrow$ Critic $\rightarrow$ [Retry $|$ End]
+    \item \textbf{Cloud-Native}: Serverless container auto-scaling from 0 to N instances
+    \item \textbf{Security}: Sandboxed Python executor, read-only SQL, optional Bearer auth
+    \item \textbf{Extensibility}: Plugin-based tool registry and pluggable LLM providers
+\end{itemize}
+
+\section{Key Metrics}
+\begin{itemize}[leftmargin=*]
+    \item Multi-agent pipeline with 6 coordinated nodes
+    \item 4 tool types (document, SQL, Python, web)
+    \item Containerized deployment on GCP
+    \item Live public URL for demo
+\end{itemize}
+
+\section{What I Learned}
+\begin{itemize}[leftmargin=*]
+    \item Designing agent workflows with LangGraph and state management
+    \item Building production-ready FastAPI services with rate limiting and observability
+    \item Deploying containerized Python apps to Google Cloud Run
+    \item Managing cloud IAM roles, service accounts, and API enablement
+    \item Securing API keys and credentials using environment variables
+\end{itemize}
+
+\end{document}

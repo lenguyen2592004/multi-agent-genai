@@ -1,10 +1,10 @@
 from typing import Any, Dict, List
 
-from llm.ollama_client import OllamaClient
+from llm.llm_client import LLMClient
 
 
 class SynthesizerAgent:
-    def __init__(self, llm_client: OllamaClient) -> None:
+    def __init__(self, llm_client: LLMClient) -> None:
         self.llm_client = llm_client
 
     def synthesize(

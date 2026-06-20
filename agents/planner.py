@@ -1,13 +1,13 @@
 import json
 from typing import Any, Dict, List
 
-from llm.ollama_client import OllamaClient
+from llm.llm_client import LLMClient
 
 
 class PlannerAgent:
     TOOL_ALLOWLIST = {"sqlite_query", "python_executor", "web_search"}
 
-    def __init__(self, llm_client: OllamaClient) -> None:
+    def __init__(self, llm_client: LLMClient) -> None:
         self.llm_client = llm_client
 
     def plan(self, query: str) -> Dict[str, Any]:
