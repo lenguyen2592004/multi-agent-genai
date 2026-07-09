@@ -9,12 +9,25 @@ Production-style multi-agent AI system with:
 - Critic agent for validation
 - Structured tracing, logs, metrics, and eval runner
 
-## 1) Quick Start (Windows PowerShell)
+## 1) Quick Start
+
+### Option A: Using venv (Windows)
 
 ```powershell
 cd e:\multi-agent-genai
 C:/Python313/python.exe -m venv .venv
 .\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+python data/init_db.py
+python -m uvicorn api.main:app --reload --port 8000
+```
+
+### Option B: Using Conda (cross-platform)
+
+```bash
+conda create -n multi-genai python=3.11 -y
+conda activate multi-genai
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 python data/init_db.py
@@ -86,7 +99,48 @@ project/
 - Local JSON vector store for zero-cost RAG
 - Critic node validates quality and triggers one retry path
 
-## 4) Testing & Eval
+## 4) User Interface
+
+### Local UI
+
+The **Enterprise Agent OS** interface provides a clean, intuitive two-panel design:
+
+![Local UI](./ui.png)
+
+**Left Panel - Add Document:**
+- **User ID**: Identify document owner
+- **Document ID**: Unique identifier for tracking
+- **Upload Options**: Support for `.txt` and `.md` text files, or direct PDF upload
+- **Document Text**: Paste content directly or use file inputs
+- **Action Buttons**: Separate buttons for ingesting text and PDF documents
+
+**Right Panel - Ask Agent:**
+- **Query Input**: Enter natural language questions or prompts
+- **Top-K Setting**: Control number of retrieved document chunks (default: 4)
+- **Run Query Button**: Execute the agent pipeline
+- **Response Area**: Displays:
+  - **Answer**: Direct response from the agent
+  - **Summary**: Extracted key points and action items
+  - **Raw JSON**: Full debug information and trace data
+
+**Response Section:**
+- Green status bar showing query completion
+- Structured output with parsed answers and summaries
+- Expandable JSON for troubleshooting
+
+### Deployed UI
+
+The same interface is available when deployed to cloud platforms:
+
+![Deployed UI](./image.png)
+
+Features remain consistent across local and cloud deployments:
+- Same workflow and component layout
+- Multi-agent orchestration powered by LangGraph
+- Real-time response with streaming support
+- Full access to document ingestion and querying capabilities
+
+## 5) Testing & Eval
 
 Run tests:
 
